@@ -4,10 +4,10 @@
         [wondercode.handler]))
 
 (fact "it has a main page"
-      (let [response (app (request :get "/"))]
+      (let [response (app-routes (request :get "/"))]
         (:status response) => 200
-        (:body response) => "Hello World"))
+        (:body response) => (contains "Hello World")))
 
 (fact "it has a failing route"
-      (let [response (app (request :get "/invalid"))]
+      (let [response (app-routes (request :get "/invalid"))]
         (:status response) => 404))

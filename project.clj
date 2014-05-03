@@ -8,5 +8,6 @@
   :plugins [[lein-ring "0.8.10"]
             [lein-midje "3.1.1"]]
   :profiles
-  {:dev {:dependencies [[midje "1.6.0"]]}}
+  {:dev {:dependencies [[midje "1.6.0"]
+                        [ring-mock "0.1.5"]]}}
   :main wondercode.handler)
