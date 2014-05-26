@@ -1,4 +1,4 @@
-(ns wondercode.models.project.project)
+(ns wondercode.models.project)
 
 (def empty-template
   (zipmap [:name

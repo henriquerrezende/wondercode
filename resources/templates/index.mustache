@@ -6,7 +6,15 @@
 <body>
 <div class="container">
     <h1>{{ greeting }}, World</h1>
-    <p>How do you do?</p>
+    <p>{{ message }}</p>
+    <p>Add project description below</p>
 </div>
+
+<form method="post" action="/projects">
+    Name: <input type="text" name="name"><br>
+    URL: <input type="text" name="url"><br>
+    <input type="submit" value="Add Project">
+</form>
+
 </body>
 </html>
