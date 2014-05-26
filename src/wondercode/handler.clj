@@ -3,7 +3,8 @@
         [ring.middleware file file-info stacktrace reload params])
   (:require [compojure.route :as route]
             [ring.adapter.jetty :as jetty]
-            [wondercode.views.project :as project]))
+            [wondercode.views.project :as project]
+            [wondercode.mongo-db :as mongo]))
 
 (defroutes app-routes
            (GET "/" [] (project/index))
@@ -21,5 +22,6 @@
       (wrap-stacktrace)))
 
 (defn -main []
+  (mongo/connect-db)
   (let [port (Integer/parseInt (get (System/getenv) "PORT" "5000"))]
     (jetty/run-jetty (app) {:port port :join? false})))

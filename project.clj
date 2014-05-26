@@ -5,7 +5,8 @@
                  [ring "1.1.8"]
                  [compojure "1.1.6"]
                  [de.ubercode.clostache/clostache "1.3.1"]
-                 [prismatic/schema "0.2.2"]]
+                 [prismatic/schema "0.2.2"]
+                 [com.novemberain/monger "2.0.0-rc1"]]
   :plugins [[lein-ring "0.8.10"]
             [lein-midje "3.1.1"]]
   :profiles
