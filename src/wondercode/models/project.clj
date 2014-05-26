@@ -17,5 +17,7 @@
   (mongo/insert-into "project" project))
 
 (defn get-from-db
-  [query]
-  (mongo/get-from "project" query))
+  ([query]
+   (mongo/get-from "project" query))
+  ([]
+   (get-from-db {})))

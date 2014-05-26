@@ -1,9 +1,10 @@
 (ns wondercode.views.project
-  (:require [wondercode.template :as template]))
+  (:require [wondercode.template :as template]
+            [wondercode.models.project :as project]))
 
 (defn index
   []
-  (template/render "index" {:greeting "Hello"}))
+  (template/render "index" {:projects (project/get-from-db)}))
 
 (defn new
   [{name "name" url "url"}]
