@@ -23,7 +23,7 @@
       (wrap-stacktrace)))
 
 (defn -main []
-  (seed/project-samples)
   (mongo/connect-db)
+  (seed/projects)
   (let [port (Integer/parseInt (get (System/getenv) "PORT" "5000"))]
     (jetty/run-jetty (app) {:port port :join? false})))

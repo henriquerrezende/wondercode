@@ -1,5 +1,6 @@
 (ns wondercode.seeds.projects
-  (require [wondercode.models.project :as project]))
+  (require [wondercode.models.project :as project]
+           [wondercode.mongo-db :as mongo]))
 
 (def project-samples
   [{:name "wondercode"
@@ -11,4 +12,5 @@
 
 (defn projects
   []
+  (mongo/drop-db)
   (project/insert-into-db project-samples))
