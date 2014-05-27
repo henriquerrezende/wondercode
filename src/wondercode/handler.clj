@@ -9,8 +9,8 @@
 
 (defroutes app-routes
            (GET "/projects" [] (project/index))
-           ;(POST "/projects" [name url] (project/new name url))
-           (POST "/projects" request (project/new (:params request)))
+           ;(POST "/projects" request (project/new (:params request)))
+           (GET "/tags/:tag" [tag] (project/search-by-tags tag))
            (route/resources "/")
            (route/not-found "Not Found"))
 
