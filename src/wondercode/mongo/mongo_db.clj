@@ -1,4 +1,4 @@
-(ns wondercode.mongo-db
+(ns wondercode.mongo.mongo-db
   (:import (org.bson.types ObjectId))
   (:require [monger.core :as mg]
             [monger.collection :as mc]))

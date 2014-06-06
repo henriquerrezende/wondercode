@@ -4,11 +4,10 @@
   (:require [compojure.route :as route]
             [ring.adapter.jetty :as jetty]
             [wondercode.views.project :as project]
-            [wondercode.mongo-db :as mongo]
-            [wondercode.seeds.projects :as seed]))
+            [wondercode.neo4j.seed :as seed]))
 
 (defroutes app-routes
-           (GET "/projects" [] (project/index))
+           (GET "/project/:resource_name" [resource_name] (project/index resource_name))
            ;(POST "/projects" request (project/new (:params request)))
            (GET "/tags/:tag" [tag] (project/search-by-tags tag))
            (route/resources "/")
@@ -23,7 +22,6 @@
       (wrap-stacktrace)))
 
 (defn -main []
-  (mongo/connect-db)
   (seed/projects)
   (let [port (Integer/parseInt (get (System/getenv) "PORT" "5000"))]
     (jetty/run-jetty (app) {:port port :join? false})))

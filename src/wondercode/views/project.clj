@@ -4,8 +4,8 @@
             [monger.operators :refer :all]))
 
 (defn index
-  []
-  (template/render "index" {:projects (project/get-from-db)}))
+  [resource_name]
+  (template/render "index" {:projects (project/get-from-db :resource_name resource_name)}))
 
 ;(defn new
 ;  [{name "name" url "url"}]
