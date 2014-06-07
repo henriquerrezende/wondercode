@@ -7,7 +7,6 @@
                  [cheshire "5.3.1"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [prismatic/schema "0.2.2"]
-                 [com.novemberain/monger "2.0.0-rc1"]
                  [clojurewerkz/neocons "3.0.0"]]
   :plugins [[lein-ring "0.8.10"]
             [lein-midje "3.1.1"]]
