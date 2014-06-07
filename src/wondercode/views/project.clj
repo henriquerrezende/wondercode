@@ -3,9 +3,19 @@
             [wondercode.models.project :as project]
             [monger.operators :refer :all]))
 
+(defn show
+  [resource_name]
+  (template/render-page
+    "project/show"
+    {:projects (project/get-from-db :resource_name resource_name)}
+    [:header :footer]))
+
 (defn index
   [resource_name]
-  (template/render "index" {:projects (project/get-from-db :resource_name resource_name)}))
+  (template/render-page
+    "project/index"
+    {}
+    [:header :footer]))
 
 ;(defn new
 ;  [{name "name" url "url"}]
@@ -17,4 +27,4 @@
   [tags]
   ;TODO: Remove dependency on monger
   (let [query {:tags {$in [tags]}}]
-    (template/render "index" {:projects (project/get-from-db query)})))
+    (template/render-page "index" {:projects (project/get-from-db query)})))

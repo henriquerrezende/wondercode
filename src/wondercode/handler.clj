@@ -7,7 +7,8 @@
             [wondercode.neo4j.seed :as seed]))
 
 (defroutes app-routes
-           (GET "/project/:resource_name" [resource_name] (project/index resource_name))
+           (GET "/project/:resource_name" [resource_name] (project/show resource_name))
+           (GET "/projects" [resource_name] (project/index resource_name))
            ;(POST "/projects" request (project/new (:params request)))
            (GET "/tags/:tag" [tag] (project/search-by-tags tag))
            (route/resources "/")
