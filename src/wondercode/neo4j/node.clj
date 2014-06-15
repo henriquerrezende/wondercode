@@ -3,11 +3,16 @@
             [clojurewerkz.neocons.rest.nodes :as nn]
             [clojurewerkz.neocons.rest.cypher :as cy]
             [clojurewerkz.neocons.rest.labels :as nl]
+            [clojurewerkz.neocons.rest.index :as ni]
             [clojurewerkz.neocons.rest.constraints :as nc]
-            [clojurewerkz.neocons.rest.relationships :as nrel]
-            [clojurewerkz.neocons.rest.records :as nrec]))
+            [clojurewerkz.neocons.rest.relationships :as nrel]))
+
+; Abstracting the setup for the label and property-name since we'll always use
+; the same (e.g. all projects will be under the label 'project' and connected through
+; the property :resource_name)
 
 (def conn-atom (atom nil))
+(def index (atom nil))
 
 (defn connect-db
   []
@@ -18,13 +23,19 @@
 
 (defn create-unique-index
   [label property-name]
+  "Unique index as Neo4j 2.0, so queries by label/property-name are faster. property-name is unique as well."
   (println (str "Creating unique index for label " label " and property " property-name))
-  (nc/create-unique @conn-atom label property-name))
+  (reset! index (nc/create-unique @conn-atom label property-name)))
 
-(defn drop-unique-index
-  [label property-name]
-  (println (str "Dropping unique index for label " label " and property " property-name))
-  (nc/drop-unique @conn-atom label property-name))
+(defn drop-all-unique-index
+  [label]
+  (if-let [label-constraints (ni/get-all @conn-atom label)]
+    (dorun (map
+             #(let [label (:label %)
+                    property-keys (:property_keys %)]
+               (println (str "Dropping unique index for label " label " and property-keys " property-keys))
+               (nc/drop-unique @conn-atom label (first property-keys)))
+             label-constraints))))
 
 (defn delete-all
   []
@@ -34,31 +45,30 @@
 (defn insert-node
   [label node-properties]
   (println (str "Inserting node " label " " node-properties))
-  (let [id (nn/create @conn-atom node-properties)]
-    (nl/add @conn-atom id label)
-    id))
+  (try
+    (let [node (nn/create @conn-atom node-properties)]
+      (nl/add @conn-atom node label)
+      node)
+    (catch Exception e
+      (do (println (str "Failed to insert node"))
+          (throw e)))))
 
 (defn fetch-node
-  [label property-name property-value]
-  ;(println (str "Fetching node " label " with " (name property-name) " : " (name property-value)))
-  (-> (cy/tquery
-        @conn-atom
-        (str "MATCH (n:" label ") WHERE n." (name property-name) " = { " (name property-name) " } RETURN n")
-        {property-name property-value})
-      (first)
-      (get "n")
-      (nrec/instantiate-node-from)))
+  [node-label node-properties]
+  (let [key (first (keys node-properties))
+        value (first (vals node-properties))]
+    (first (nl/get-all-nodes @conn-atom node-label key value))))
 
-(defn link-nodes
+(defn add-dependency-to-node
   [label property-name from to]
-  (println (str "Linking nodes from " from " to " to))
-  (let [from-node (fetch-node label property-name from)
-        to-node (fetch-node label property-name to)]
-    (nrel/create @conn-atom from-node to-node :links {:created-by "Henrique"})))
+  (println (str "Node " from " require " to))
+  (let [from-node (fetch-node label {property-name from})
+        to-node (fetch-node label {property-name to})]
+    (nrel/create @conn-atom from-node to-node :requires {:created-at (java.util.Date.)})))
 
-(defn get-outgoing-linked-nodes
+(defn fetch-nodes-required-by
   [label property-name from]
-  (println (str "Getting outgoing linked nodes from " property-name " " from " and label " label))
-  (let [from-node (fetch-node label property-name from)]
-    (when-let [relationships (nrel/outgoing-for @conn-atom from-node :links :created-by)]
+  (println (str "Fetching nodes required by " from))
+  (let [from-node (fetch-node label {property-name from})]
+    (when-let [relationships (nrel/outgoing-for @conn-atom from-node :requires :created-at)]
       (map #(nn/fetch-from @conn-atom (:end %)) relationships))))

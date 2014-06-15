@@ -21,14 +21,14 @@
    (:data (node/insert-node label project)))
   ([project & dependent-projects-pk]
    (let [node (insert-into-db project)]
-     (doall (map #(node/link-nodes label primary-key (primary-key node) %) (first dependent-projects-pk)))
+     (doall (map #(node/add-dependency-to-node label primary-key (primary-key node) %) (first dependent-projects-pk)))
      node)))
 
 (defn get-from-db
-  [property-name property-value]
-  (:data (node/fetch-node label property-name property-value)))
+  [resource-name]
+  (:data (node/fetch-node label {primary-key resource-name})))
 
 (defn get-dependents
-  [property-name property-value]
-  (->> (node/get-outgoing-linked-nodes label property-name property-value)
+  [resource-name]
+  (->> (node/fetch-nodes-required-by label primary-key resource-name)
        (reduce #(conj %1 (:data %2)) [])))

@@ -6,9 +6,10 @@
 (with-state-changes
   [(before :facts (do (node/connect-db)
                       (node/delete-all)
+                      (node/drop-all-unique-index "project")
                       (node/create-unique-index "project" :resource_name)))
    (after :facts (do (node/delete-all)
-                     (node/drop-unique-index "project" :resource_name)))]
+                     (node/drop-all-unique-index "project")))]
 
   (def wondercode {:resource_name "wondercode"
                    :name          "Wondercode"
@@ -22,12 +23,11 @@
 
   (fact "project is persisted and retrieved from db"
         (insert-into-db wondercode)
-        (get-from-db :resource_name "wondercode") => (contains {:name "Wondercode"}))
+        (get-from-db "wondercode") => (contains {:name "Wondercode"}))
 
   (fact "insert a project with 2 other dependent projects"
         (let [neo4j-pk (primary-key (insert-into-db neo4j))
-              midje-pk (primary-key (insert-into-db midj))
-              wondercode-pk (primary-key (insert-into-db wondercode [neo4j-pk midje-pk]))
-              dependents (get-dependents primary-key wondercode-pk)]
-          (first dependents) => (contains {:resource_name "neo4j"})
-          (second dependents) => (contains {:resource_name "midje"}))))
+              midje-pk (primary-key (insert-into-db midj))]
+          (insert-into-db wondercode [neo4j-pk midje-pk])
+          (get-dependents "wondercode") => (has some (and (contains {:resource_name "neo4j"})
+                                                          (contains {:resource_name "midje"}))))))

@@ -14,7 +14,7 @@
   []
   (node/connect-db)
   (node/delete-all)
-  (node/drop-unique-index "project" :resource_name)
+  (node/drop-all-unique-index "project")
   (node/create-unique-index "project" :resource_name)
   (let [midje-pk (project/primary-key (project/insert-into-db (second project-samples)))]
     (project/insert-into-db (first project-samples) [midje-pk])))
